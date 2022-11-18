@@ -103,4 +103,4 @@ conflict if two instances use the same folder.
 - Log folder can be shared between multiple applications provided that the log file names themselves are unique.
 
 ## Contributing
-If you'd like to contribute please follow our [CONTRIBUTING.md]() guide for more information (coming soon).
+If you'd like to contribute please follow our [CONTRIBUTING.md]() guide for more information (coming soon). test
