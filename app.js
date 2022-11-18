@@ -22,6 +22,15 @@ var jobs = require('./routes/jobs');
 var systemStatus = require('./routes/systemStatus');
 var help = require('./routes/help');
 var app = express();
+
+
+process.send = process.send || function(){}
+const listener  = app.listen(config.get('http_port') || 3000, function(){
+  console.log(`Listening on port ${listener.address().port}`)
+  process.send("ready")
+})
+
+
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 

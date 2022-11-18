@@ -1,0 +1,94 @@
+Bootstrap: docker
+From: node:18-alpine
+
+%setup
+	mkdir -p $SINGULARITY_ROOTFS/config
+	mkdir -p $SINGULARITY_ROOTFS/logs
+
+%files
+./app.js /bvbrc_web/
+./buildClient.sh /bvbrc_web/
+./CHANGELOG.md /bvbrc_web/
+./config.js /bvbrc_web/
+./CONTRIBUTING.md /bvbrc_web/
+./CONTRIBUTING-old.md /bvbrc_web/
+./docs /bvbrc_web/
+./intern.json /bvbrc_web/
+./LICENSE.md /bvbrc_web/
+./newrelic.js /bvbrc_web/
+./bvbrc_web.conf.sample /bvbrc_web/
+./singularity/default_pm2_config.js /bvbrc_web/
+./singularity/scripts /bvbrc_web/singularity_scripts
+./package.json /bvbrc_web/
+./package-lock.json /bvbrc_web/
+./post_install.sh /bvbrc_web/
+./public /bvbrc_web/
+./README.md /bvbrc_web/
+./routes /bvbrc_web/
+./singularity /bvbrc_web/
+./views /bvbrc_web/
+
+%environment
+	export PM2_HOME=/config/pm2
+  export BVBRC_WEB_CONFIG=/config/bvbrc_web.conf
+
+%post
+  apk add --no-cache git jq openjdk8-jre
+	npm install -g npm pm2 
+	cd /bvbrc_web
+	npm install
+	./post_install.sh
+	rm -rf public/js/release
+	./buildClient.sh
+	apk del openjdk8-jre git jq
+	
+
+%startscript
+  echo "Starting BV-BRC Web"
+	if [ ! -f /config/pm2.config.js ]; then
+		cp /bvbrc_web/default_pm2_config.js /config/pm2.config.js
+  fi
+
+	if [ ! -f /config/bvbrc_web.conf ]; then
+		cp /bvbrc_web/bvbrc_web.conf.sample /config/bvbrc_web.conf
+  fi
+
+	if [ ! -f /config/start.sh ]; then
+	  cp /bvbrc_web/singularity_scripts/* /config/
+  fi
+
+  echo "SINGULARITY_CONTAINER=$SINGULARITY_CONTAINER" > /config/instance.vars
+	echo "SINGULARITY_INSTANCE=$1" >> /config/instance.vars
+	echo "SINGULARITY_BIND=$SINGULARITY_BIND" >> /config/instance.vars
+
+	env > /logs/env.log
+
+	pm2-runtime /config/pm2.config.js || exit 1
+
+%apprun generate_scripts
+	cp /bvbrc_web/singularity_scripts/* /config/
+
+%apprun stop
+	pm2 stop bvbrc_web
+
+%apprun start
+	pm2-runtime /config/pm2.config.js
+
+%apprun restart 
+	pm2 restart /config/pm2.config.js 
+
+%apprun reload 
+	pm2 reload /config/pm2.config.js 
+
+%apprun scale
+  pm2 scale bvbrc_web $@
+
+%apprun status 
+	pm2 list
+
+%apprun pm2
+  pm2 $@
+
+%apprun mongo
+  MONGOURL=`cat /config/bvbrc_web.conf | jq -r .mongo.url`
+	mongo $MONGOURL

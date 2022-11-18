@@ -37,6 +37,6 @@ const defaults = {
 };
 
 const config_filename = 'p3-web.conf';
-const config_file = path.join(__dirname, config_filename);
+const config_file = process.env.BVBRC_WEB_CONFIG || path.join(__dirname, config_filename);
 
 module.exports = nconf.argv().env().file(config_file).defaults(defaults);
