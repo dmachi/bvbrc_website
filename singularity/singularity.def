@@ -36,8 +36,8 @@ From: node:18-alpine
   apk add --no-cache git jq openjdk8-jre
 	npm install -g npm pm2 
 	cd /bvbrc_web
-	npm install
 	./post_install.sh
+	npm install
 	rm -rf public/js/release
 	./buildClient.sh
 	apk del openjdk8-jre git jq
