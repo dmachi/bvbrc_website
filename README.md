@@ -17,7 +17,7 @@ Clone or Fork & Clone the [BV-BRC-Web](https://github.com/BV-BRC/BV-BRC-Web) rep
 
 ### Git
 ```
-git clone https://github.com/BV-BRC/BV-BRC-Web.git
+git clone --recursive https://github.com/BV-BRC/BV-BRC-Web.git
 cd BV-BRC-Web
 npm install
 ```
@@ -28,19 +28,23 @@ npm install
 ```
 gh repo clone BV-BRC/BV-BRC-Web
 cd BV-BRC-Web
+git submodule update --init
 npm install
 ```
 
 **Note:** After you run `npm install` you must run to fetch all modules in the node_modules directory.
 
-```
-git submodule update --init
-```
-
 Make sure you must `npm install` in the BV-BRC-Web directory first though!
 
 ## Running the web application
-Run from inside the directory:
+From within BV-BRC-Web
+You can statically build the website frontend code with the following:
+```
+npm run build:watch
+```
+This will build the code and watch for changes and automatically rebuild the code.
+
+From another terminal, start the local webserver
 ```
 npm start
 ```
@@ -51,7 +55,7 @@ There is a file called `p3-web.conf` that is used for initial setup and config. 
 
 Please: `cp p3-web.conf.sample p3-web.conf` and edit as necessary. You may need to get the correct info from a team member so feel reach to reach out.
 
-Note: if any configuration changes are made (i.e., changes to `./p3-web.conf`), then `./bin/p3-web` must be restarted for the effects to take place within the local dev application.
+Note: if any configuration changes are made (i.e., changes to `./p3-web.conf`), then `npm start` must be restarted for the effects to take place within the local dev application.
 
 ## Contributing
 If you'd like to contribute please follow our [CONTRIBUTING.md]() guide for more information (coming soon).
