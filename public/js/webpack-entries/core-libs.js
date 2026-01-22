@@ -6,12 +6,12 @@
 // External libraries
 import $ from 'jquery';
 
-// BV-BRC Client
-import BVBRCClient from '../bvbrc_js_client/dist/bvbrc_client.js';
+// BV-BRC Client - resolves via webpack alias to node_modules/bvbrc_js_client/dist
+import BVBRCClient from 'bvbrc_js_client/bvbrc_client';
 
-// Copilot libraries (from node_modules via webpack aliases)
-import markdownit from 'markdown-it';
-import html2canvas from 'html2canvas';
+// Copilot libraries (resolve via webpack aliases)
+import markdownit from 'markdown-it/markdown-it.min';
+import html2canvas from 'html2canvas/html2canvas.min';
 
 // Export to window for global access (needed by Dojo code)
 window.$ = window.jQuery = $;

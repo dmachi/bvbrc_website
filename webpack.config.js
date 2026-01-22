@@ -493,6 +493,12 @@ module.exports = {
     new webpack.NormalModuleReplacementPlugin(
       /dojox\/gfx\/renderer!?$/,
       path.resolve(__dirname, 'public/js/dojox/gfx/svg.js')
+    ),
+
+    // MSA module already built by post-install, just make it available as a static alias
+    new webpack.NormalModuleReplacementPlugin(
+      /^msa\/msa\.min$/,
+      path.resolve(__dirname, 'public/js/msa/dist/msa.js')
     )
   ],
 
@@ -517,7 +523,15 @@ module.exports = {
       'xstyle/css': path.resolve(__dirname, 'public/js/xstyle/css.js'),
       // Dojo plugin modules that use dynamic resolution
       'dojo/domReady': path.resolve(__dirname, 'public/js/dojo/domReady.js'),
-      'dojox/gfx/renderer': path.resolve(__dirname, 'public/js/dojox/gfx/svg.js')
+      'dojox/gfx/renderer': path.resolve(__dirname, 'public/js/dojox/gfx/svg.js'),
+      // Node modules - resolve from node_modules instead of requiring symlinks
+      'bvbrc_js_client/bvbrc_client$': path.resolve(__dirname, 'node_modules/bvbrc_js_client/dist/bvbrc_client.js'),
+      'markdown-it/markdown-it.min$': path.resolve(__dirname, 'node_modules/markdown-it/dist/markdown-it.min.js'),
+      'html2canvas/html2canvas.min$': path.resolve(__dirname, 'node_modules/html2canvas/dist/html2canvas.min.js'),
+      'msa/msa.min$': path.resolve(__dirname, 'node_modules/msa/dist/msa.min.js'),
+      'msa': path.resolve(__dirname, 'node_modules/msa/dist'),
+      'JBrowse': path.resolve(__dirname, 'node_modules/jbrowse/src/JBrowse'),
+      'jbrowse.repo': path.resolve(__dirname, 'node_modules/jbrowse')
     },
     fallback: {
       "stream": require.resolve('stream-browserify'),
@@ -551,11 +565,17 @@ module.exports = {
         ]
       },
       {
-        // JBrowse Browser uses dynamic require context; skip context parsing to avoid analysis errors
+        // MSA CSS - extract and minify alongside main CSS
+        test: /[\\/]msa[\\/].*\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader'
+        ]
+      },
+      {
+        // JBrowse Browser uses dynamic require context; skip webpack processing entirely
         test: /node_modules[\\/]jbrowse[\\/]src[\\/]JBrowse[\\/]Browser\.js$/,
-        parser: {
-          requireContext: false
-        }
+        use: ['script-loader']
       },
       {
         // GenomeBrowser dynamically loads plugins; disable context analysis so the AMD require config passes through
